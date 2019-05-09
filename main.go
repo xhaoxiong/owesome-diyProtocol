@@ -7,7 +7,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"owesome-diyProtocol/diy"
@@ -24,17 +23,6 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
-		go handle2(conn)
+		go diy.NewHandler(conn, 16)
 	}
-}
-
-func handle2(conn net.Conn) {
-
-	buffer := diy.NewBuffer(conn, 1024)
-
-	if err := buffer.Read(); err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(buffer)
 }
