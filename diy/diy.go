@@ -8,12 +8,13 @@ package diy
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 )
 
 type Handler struct {
 	scanner  *bufio.Scanner
-	Msg      chan []byte
+	msg      chan []byte
 	DiySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)
 	DiyDoBuf func(buf []byte)
 }
@@ -21,7 +22,7 @@ type Handler struct {
 func NewHandler(conn io.Reader, len int) *Handler {
 	msg := make(chan []byte, len)
 	scanner := bufio.NewScanner(conn)
-	return &Handler{scanner: scanner, Msg: msg}
+	return &Handler{scanner: scanner, msg: msg}
 }
 
 func (h *Handler) setDiySplit(diySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)) *Handler {
@@ -67,5 +68,9 @@ func (h *Handler) defaultHandleSplit(data []byte, atEOF bool) (advance int, toke
 
 func (h *Handler) defaultDoBuf(buf []byte) {
 	//对解析的数据的默认处理
-	h.Msg <- buf
+	h.msg <- buf
+}
+
+func (h *Handler) RecvMsg() {
+	fmt.Println(<-h.msg)
 }
