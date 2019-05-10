@@ -12,8 +12,10 @@ import (
 )
 
 type Handler struct {
-	scanner *bufio.Scanner
-	Msg     chan []byte
+	scanner  *bufio.Scanner
+	Msg      chan []byte
+	DiySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)
+	DiyDoBuf func(buf []byte)
 }
 
 func NewHandler(conn io.Reader, len int) *Handler {
@@ -22,8 +24,18 @@ func NewHandler(conn io.Reader, len int) *Handler {
 	return &Handler{scanner: scanner, Msg: msg}
 }
 
-func (h *Handler) doHandle() {
-	h.splitBuf(nil).doMsg(nil)
+func (h *Handler) setDiySplit(diySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)) *Handler {
+	h.DiySplit = diySplit
+	return h
+}
+
+func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte)) *Handler {
+	h.DiyDoBuf = diyDoBuf
+	return h
+}
+
+func (h *Handler) Do() {
+	h.splitBuf(h.DiySplit).doMsg(h.DiyDoBuf)
 }
 
 func (h *Handler) splitBuf(diySplite func(data []byte, atEOF bool) (advance int, token []byte, err error)) *Handler {

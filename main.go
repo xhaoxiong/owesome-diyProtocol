@@ -23,6 +23,6 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
-		go diy.NewHandler(conn, 16)
+		go diy.NewHandler(conn, 16).Do()
 	}
 }
