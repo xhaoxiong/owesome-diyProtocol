@@ -8,7 +8,6 @@ package diy
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 )
 
@@ -71,6 +70,7 @@ func (h *Handler) defaultDoBuf(buf []byte) {
 	h.msg <- buf
 }
 
-func (h *Handler) RecvMsg() {
-	fmt.Println(<-h.msg)
+func (h *Handler) RecvMsg() (msg []byte) {
+	msg = <-h.msg
+	return
 }
