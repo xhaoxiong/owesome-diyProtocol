@@ -7,9 +7,9 @@
 package main
 
 import (
+	"github.com/xhaoxiong/owesome-diyProtocol/diy"
 	"net"
 	"os"
-	"owesome-diyProtocol/diy"
 )
 
 func main() {
