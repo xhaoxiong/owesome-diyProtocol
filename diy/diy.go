@@ -35,13 +35,13 @@ func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte)) *Handler {
 }
 
 func (h *Handler) Do() {
-	h.splitBuf(h.DiySplit).doMsg(h.DiyDoBuf)
+	h.splitBuf().doMsg()
 }
 
-func (h *Handler) splitBuf(diySplite func(data []byte, atEOF bool) (advance int, token []byte, err error)) *Handler {
+func (h *Handler) splitBuf() *Handler {
 	h.scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if diySplite != nil {
-			return diySplite(data, atEOF)
+		if h.DiySplit != nil {
+			return h.DiySplit(data, atEOF)
 		}
 		return h.defaultHandleSplit(data, atEOF)
 	})
@@ -49,12 +49,12 @@ func (h *Handler) splitBuf(diySplite func(data []byte, atEOF bool) (advance int,
 	return h
 }
 
-func (h *Handler) doMsg(diyDoBuf func(buf []byte)) {
+func (h *Handler) doMsg() {
 	scan := h.scanner
 	for scan.Scan() {
 		buf := scan.Bytes()
-		if diyDoBuf != nil {
-			diyDoBuf(buf)
+		if h.DiyDoBuf != nil {
+			h.DiyDoBuf(buf)
 		}
 		h.defaultDoBuf(buf)
 	}
@@ -62,6 +62,7 @@ func (h *Handler) doMsg(diyDoBuf func(buf []byte)) {
 
 func (h *Handler) defaultHandleSplit(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	//默认的切割方式
+
 	return
 }
 
