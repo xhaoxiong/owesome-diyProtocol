@@ -9,16 +9,18 @@ package diy
 import (
 	"bufio"
 	"io"
+	"net"
 )
 
 type Handler struct {
+	conn     net.Conn
 	scanner  *bufio.Scanner
 	msg      chan []byte
 	DiySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)
-	DiyDoBuf func(buf []byte)
+	DiyDoBuf func(buf []byte, conn net.Conn)
 }
 
-func NewHandler(conn io.Reader, len int) *Handler {
+func NewHandler(conn io.Reader, len int, conn2 net.Conn) *Handler {
 	msg := make(chan []byte, len)
 	scanner := bufio.NewScanner(conn)
 	return &Handler{scanner: scanner, msg: msg}
@@ -29,7 +31,7 @@ func (h *Handler) setDiySplit(diySplit func(data []byte, atEOF bool) (advance in
 	return h
 }
 
-func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte)) *Handler {
+func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte, conn net.Conn)) *Handler {
 	h.DiyDoBuf = diyDoBuf
 	return h
 }
@@ -54,7 +56,7 @@ func (h *Handler) doMsg() {
 	for scan.Scan() {
 		buf := scan.Bytes()
 		if h.DiyDoBuf != nil {
-			h.DiyDoBuf(buf)
+			h.DiyDoBuf(buf, h.conn)
 		}
 		h.defaultDoBuf(buf)
 	}
@@ -74,4 +76,8 @@ func (h *Handler) defaultDoBuf(buf []byte) {
 func (h *Handler) RecvMsg() (msg []byte) {
 	msg = <-h.msg
 	return
+}
+
+func (h *Handler) TransMsg() {
+
 }
