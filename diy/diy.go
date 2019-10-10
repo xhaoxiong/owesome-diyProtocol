@@ -13,17 +13,17 @@ import (
 )
 
 type Handler struct {
-	conn     *net.Conn
+	conn     net.Conn
 	scanner  *bufio.Scanner
 	msg      chan []byte
 	DiySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)
-	DiyDoBuf func(buf []byte, conn *net.Conn)
+	DiyDoBuf func(buf []byte, conn net.Conn)
 }
 
-func NewHandler(conn io.Reader, len int, conn2 *net.Conn) *Handler {
+func NewHandler(conn io.Reader, len int, conn2 net.Conn) *Handler {
 	msg := make(chan []byte, len)
 	scanner := bufio.NewScanner(conn)
-	return &Handler{scanner: scanner, msg: msg}
+	return &Handler{scanner: scanner, msg: msg, conn: conn2}
 }
 
 func (h *Handler) setDiySplit(diySplit func(data []byte, atEOF bool) (advance int, token []byte, err error)) *Handler {
@@ -31,7 +31,7 @@ func (h *Handler) setDiySplit(diySplit func(data []byte, atEOF bool) (advance in
 	return h
 }
 
-func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte, conn *net.Conn)) *Handler {
+func (h *Handler) setDiyDoBuf(diyDoBuf func(buf []byte, conn net.Conn)) *Handler {
 	h.DiyDoBuf = diyDoBuf
 	return h
 }
